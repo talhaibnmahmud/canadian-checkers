@@ -1,0 +1,97 @@
+version: 1
+disable_existing_loggers: true
+
+formatters:
+  standard:
+    format: "%(asctime)s - %(name)20s - %(levelname)8s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S %p"
+  debug:
+    format: "%(levelname)8s - Line %(lineno)3d: %(name)20s.%(funcName)s() - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S %p"
+  error:
+    format: "%(levelname)s <PID %(process)d:%(processName)s> %(name)s.%(funcName)s(): %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    stream: ext://sys.stdout
+
+  debug_file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: debug
+    filename: logs/debug.log
+    mode: "w"
+    encoding: utf8
+
+  info_file_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: standard
+    filename: logs/info.log
+    mode: "w"
+    encoding: utf8
+
+  warn_file_handler:
+    class: logging.FileHandler
+    level: WARN
+    formatter: standard
+    filename: logs/warn.log
+    mode: "w"
+    encoding: utf8
+
+  error_file_handler:
+    class: logging.FileHandler
+    level: ERROR
+    formatter: error
+    filename: logs/errors.log
+    mode: "w"
+    encoding: utf8
+
+  critical_file_handler:
+    class: logging.FileHandler
+    level: CRITICAL
+    formatter: standard
+    filename: logs/critical.log
+    mode: "w"
+    encoding: utf8
+
+root:
+  level: DEBUG
+  handlers:
+    [
+      console,
+      info_file_handler,
+      warn_file_handler,
+      debug_file_handler,
+      error_file_handler,
+      critical_file_handler,
+    ]
+
+loggers:
+  <module>:
+    level: DEBUG
+    handlers:
+      [
+        console,
+        info_file_handler,
+        warn_file_handler,
+        debug_file_handler,
+        error_file_handler,
+        critical_file_handler,
+      ]
+    propagate: no
+
+  <module.x>:
+    level: DEBUG
+    handlers:
+      [
+        info_file_handler,
+        warn_file_handler,
+        debug_file_handler,
+        error_file_handler,
+        critical_file_handler,
+      ]
+    propagate: no

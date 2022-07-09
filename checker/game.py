@@ -1,12 +1,11 @@
 """ Game Class """
 import logging
-from copy import deepcopy
 
 import pygame
 
-from .board import Board
-from .constants import ColorType, Coordinate, Dimensions
-from .piece import Piece
+from ai.algorithm import Algorithm
+from checker.board import Board
+from checker.constants import Coordinate, Dimensions
 
 
 def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
@@ -25,6 +24,7 @@ class Game:
     def __init__(self, window: pygame.Surface):
         """ Initialize the game """
 
+        self.algorithm = Algorithm()
         self.window = window
         self.ai = "white"
         self.human = "black"
@@ -117,27 +117,27 @@ class Game:
             self.board.set_valid_moves(self.valid_moves)
             self.refresh()
 
-    def get_all_moves(self, board: Board, color: ColorType):
-        """
-        Get all possible moves
-        """
-        MoveType = tuple[Piece, list[Coordinate]]
-        moves: list[MoveType] = []
+    # def get_all_moves(self, board: Board, color: ColorType):
+    #     """
+    #     Get all possible moves
+    #     """
+    #     MoveType = tuple[Piece, list[Coordinate]]
+    #     moves: list[MoveType] = []
 
-        for piece in board.get_all_pieces(color):
-            new_moves = [(piece, board.get_valid_moves(piece))]
+    #     for piece in board.get_all_pieces(color):
+    #         new_moves = [(piece, board.get_valid_moves(piece))]
 
-            if len(new_moves[0][1]) != 0:
-                moves.extend(new_moves)
+    #         if len(new_moves[0][1]) != 0:
+    #             moves.extend(new_moves)
 
-        return moves
+    #     return moves
 
     def ai_move(self, board: Board):
         """ AI move """
 
         self.logger.info("AI is making a move.")
-        value, new_board = alpha_beta(
-            self, board, 3, True, float("-inf"), float("inf")
+        value, new_board = self.algorithm.alpha_beta(
+            board, 3, True, float("-inf"), float("inf")
         )
         self.logger.info(f"AI value: {value}")
 
@@ -177,102 +177,102 @@ class Game:
         self.winner = None
 
 
-def minimax(game: Game, board: Board, depth: int, max_player: ColorType):
-    if depth == 0 or board.check_winner() != None:
-        return board.evaluate(), board
+# def minimax(game: Game, board: Board, depth: int, max_player: ColorType):
+#     if depth == 0 or board.check_winner() != None:
+#         return board.evaluate(), board
 
-    if max_player:
-        maxEval = float('-inf')
-        best_move = None
-        for move in get_all_moves(board, "white", game):
-            evaluation: float = minimax(game, move, depth-1, False)[0]
-            maxEval = max(maxEval, evaluation)
-            if maxEval == evaluation:
-                best_move = move
+#     if max_player:
+#         maxEval = float('-inf')
+#         best_move = None
+#         for move in get_all_moves(board, "white", game):
+#             evaluation: float = minimax(game, move, depth-1, False)[0]
+#             maxEval = max(maxEval, evaluation)
+#             if maxEval == evaluation:
+#                 best_move = move
 
-        return maxEval, best_move
-    else:
-        minEval = float('inf')
-        best_move = None
-        for move in get_all_moves(board, "black", game):
-            evaluation = minimax(game, move, depth-1, True)[0]
-            minEval = min(minEval, evaluation)
-            if minEval == evaluation:
-                best_move = move
+#         return maxEval, best_move
+#     else:
+#         minEval = float('inf')
+#         best_move = None
+#         for move in get_all_moves(board, "black", game):
+#             evaluation = minimax(game, move, depth-1, True)[0]
+#             minEval = min(minEval, evaluation)
+#             if minEval == evaluation:
+#                 best_move = move
 
-        return minEval, best_move
-
-
-def simulate_move(piece: Piece, move: Coordinate, board: Board, game: Game):
-    board.move_piece(piece, move[0], move[1])
-    return board
+#         return minEval, best_move
 
 
-def get_all_moves(board: Board, color: ColorType, game: Game):
-    moves: list[Board] = []
-
-    for piece in board.get_all_pieces(color):
-        game.logger.info(f"Getting valid moves for {piece}")
-
-        valid_moves = board.get_valid_moves(piece)
-        for move in valid_moves:
-            game.logger.info(f"Moving {piece} to {move}")
-            draw_moves(game, board, piece)
-            board_copy = deepcopy(board)
-            piece_copy = board_copy.get_piece(piece.row, piece.col)
-            if piece_copy is None:
-                continue
-            board_copy = simulate_move(piece_copy, move, board_copy, game)
-            moves.append(board_copy)
-
-    return moves
+# def simulate_move(piece: Piece, move: Coordinate, board: Board, game: Game):
+#     board.move_piece(piece, move[0], move[1])
+#     return board
 
 
-def draw_moves(game: Game, board: Board, piece: Piece):
-    valid_moves = board.get_valid_moves(piece)
-    board.draw(game.window)
-    pygame.draw.circle(game.window, (0, 255, 0), (piece.x, piece.y), 50, 5)
-    board.draw_valid_moves(game.window, valid_moves)
-    pygame.display.update()
-    pygame.time.delay(100)
+# def get_all_moves(board: Board, color: ColorType, game: Game):
+#     moves: list[Board] = []
+
+#     for piece in board.get_all_pieces(color):
+#         # game.logger.info(f"Getting valid moves for {piece}")
+
+#         valid_moves = board.get_valid_moves(piece)
+#         for move in valid_moves:
+#             # game.logger.info(f"Moving {piece} to {move}")
+#             # draw_moves(game, board, piece)
+#             board_copy = deepcopy(board)
+#             piece_copy = board_copy.get_piece(piece.row, piece.col)
+#             if piece_copy is None:
+#                 continue
+#             board_copy = simulate_move(piece_copy, move, board_copy, game)
+#             moves.append(board_copy)
+
+#     return moves
 
 
-def alpha_beta(game: Game, board: Board, depth: int, max_player: bool, alpha: float, beta: float):
-    game.logger.info(f"Alpha-beta search started. Depth: {depth}")
-    if depth == 0 or board.check_winner() != None:
-        value = board.evaluate()
-        game.logger.info(f"Value: {value}")
-        return value, board
+# def draw_moves(game: Game, board: Board, piece: Piece):
+#     valid_moves = board.get_valid_moves(piece)
+#     board.draw(game.window)
+#     pygame.draw.circle(game.window, (0, 255, 0), (piece.x, piece.y), 50, 5)
+#     board.draw_valid_moves(game.window, valid_moves)
+#     pygame.display.update()
+#     pygame.time.delay(10)
 
-    if max_player:
-        best_value = float('-inf')
-        best_move = None
-        for move in get_all_moves(board, "white", game):
-            value, _new_board = alpha_beta(             # type: ignore
-                game, move, depth-1, False, alpha, beta
-            )
-            best_value = max(best_value, value)         # type: ignore
-            alpha = max(alpha, best_value)
-            if best_value == value:
-                best_move = move
 
-            if beta <= alpha:
-                break
+# def alpha_beta(game: Game, board: Board, depth: int, max_player: bool, alpha: float, beta: float):
+#     game.logger.info(f"Alpha-beta search started. Depth: {depth}")
+#     if depth == 0 or board.check_winner() != None:
+#         value = board.evaluate()
+#         game.logger.info(f"Value: {value}")
+#         return value, board
 
-        return best_value, best_move
-    else:
-        best_value = float('inf')
-        best_move = None
-        for move in get_all_moves(board, "black", game):
-            value, _new_board = alpha_beta(             # type: ignore
-                game, move, depth-1, True, alpha, beta
-            )
-            best_value = min(best_value, value)         # type: ignore
-            beta = min(beta, best_value)
-            if best_value == value:
-                best_move = move
+#     if max_player:
+#         best_value = float('-inf')
+#         best_move = None
+#         for move in get_all_moves(board, "white", game):
+#             value, _new_board = alpha_beta(             # type: ignore
+#                 game, move, depth-1, False, alpha, beta
+#             )
+#             best_value = max(best_value, value)         # type: ignore
+#             alpha = max(alpha, best_value)
+#             if best_value == value:
+#                 best_move = move
 
-            if beta <= alpha:
-                break
+#             if beta <= alpha:
+#                 break
 
-        return best_value, best_move
+#         return best_value, best_move
+#     else:
+#         best_value = float('inf')
+#         best_move = None
+#         for move in get_all_moves(board, "black", game):
+#             value, _new_board = alpha_beta(             # type: ignore
+#                 game, move, depth-1, True, alpha, beta
+#             )
+#             best_value = min(best_value, value)         # type: ignore
+#             beta = min(beta, best_value)
+#             if best_value == value:
+#                 best_move = move
+
+#             if beta <= alpha:
+#                 break
+
+#         return best_value, best_move

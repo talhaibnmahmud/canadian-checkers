@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from pygame import draw, image, surface, transform
 
-from .constants import ColorType, Dimensions
+from checker.constants import ColorType, Dimensions
 
 
 @dataclass

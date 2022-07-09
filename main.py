@@ -4,8 +4,8 @@ import logging
 import pygame
 
 import logger.custom_logger as cl
-from checker import Game
 from checker.constants import Dimensions
+from checker.game import Game
 
 
 FPS = 60

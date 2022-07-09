@@ -1,8 +1,10 @@
 import random
+
 import pygame
 
-from .constants import ColorType, Colors, Coordinate, Dimensions, Direction
-from .piece import Piece
+from checker.constants import (
+    Colors, ColorType, Coordinate, Dimensions, Direction)
+from checker.piece import Piece
 
 
 class Board:

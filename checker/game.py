@@ -5,7 +5,7 @@ import pygame
 
 from ai.algorithm import Algorithm
 from checker.board import Board
-from checker.constants import Coordinate, Dimensions
+from checker.constants import Colors, Coordinate, Dimensions
 
 
 def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
@@ -26,8 +26,8 @@ class Game:
 
         self.algorithm = Algorithm()
         self.window = window
-        self.ai = "white"
-        self.human = "black"
+        self.ai = Colors.RED
+        self.human = Colors.WHITE
 
         self._reset()
 
@@ -171,7 +171,7 @@ class Game:
 
     def _reset(self):
         self.board = Board()
-        self.current_player = "black"
+        self.current_player = self.human
         self.selected_piece = None
         self.valid_moves = []
         self.winner = None

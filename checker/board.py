@@ -10,8 +10,8 @@ from checker.piece import Piece
 class Board:
     def __init__(self):
         self.selected_piece = None
-        self.black_left = self.white_left = 30
-        self.black_kings = self.white_kings = 0
+        self.red_left = self.white_left = 30
+        self.red_kings = self.white_kings = 0
         self.valid_moves: list[Coordinate] = []
         self.marked_for_remove: dict[Coordinate, list[Coordinate]] = {}
 
@@ -21,7 +21,7 @@ class Board:
         self.valid_moves = valid_moves
 
     def draw_squares(self, win: pygame.Surface):
-        win.fill(Colors.LIGHT)
+        win.fill(Colors.DARK)
 
         width = Dimensions.SQUARE_SIZE
         height = Dimensions.SQUARE_SIZE
@@ -29,7 +29,7 @@ class Board:
             for col in range(row % 2, Dimensions.COL, 2):
                 pygame.draw.rect(
                     win,
-                    Colors.DARK,
+                    Colors.LIGHT,
                     (
                         col * Dimensions.SQUARE_SIZE,
                         row * Dimensions.SQUARE_SIZE,
@@ -66,9 +66,9 @@ class Board:
             for col in range(Dimensions.COL):
                 if col % 2 == ((row + 1) % 2):
                     if row < 5:
-                        self.board[row].append(Piece(row, col, "white"))
+                        self.board[row].append(Piece(row, col, Colors.RED))
                     elif row > 6:
-                        self.board[row].append(Piece(row, col, "black"))
+                        self.board[row].append(Piece(row, col, Colors.WHITE))
                     else:
                         self.board[row].append(None)
                 else:
@@ -109,7 +109,7 @@ class Board:
         valid_moves: list[Coordinate] = []
         self.marked_for_remove = {}
 
-        if piece.color == "white":
+        if piece.color == Colors.RED:
             direction = Direction.DOWN
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
@@ -240,43 +240,43 @@ class Board:
         if (row == 0 or row == Dimensions.ROW - 1) and not piece.king:
             piece.make_king()
 
-            if piece.color == "white":
+            if piece.color == Colors.WHITE:
                 self.white_kings += 1 if piece.king else 0
             else:
-                self.black_kings += 1 if piece.king else 0
+                self.red_kings += 1 if piece.king else 0
 
     def remove_piece(self, piece: Piece):
         row, col = piece.row, piece.col
         self.board[row][col] = None
 
     def check_winner(self):
-        if self.black_left == 0:
-            return "white"
+        if self.red_left == 0:
+            return Colors.WHITE
         elif self.white_left == 0:
-            return "black"
+            return Colors.RED
 
-        white_pieces = self.get_all_pieces("white")
-        black_pieces = self.get_all_pieces("black")
+        white_pieces = self.get_all_pieces(Colors.WHITE)
+        red_pieces = self.get_all_pieces(Colors.RED)
 
         white_valid_moves: list[Coordinate] = []
         for piece in white_pieces:
             white_valid_moves.extend(self.get_valid_moves(piece))
 
-        black_valid_moves: list[Coordinate] = []
-        for piece in black_pieces:
-            black_valid_moves.extend(self.get_valid_moves(piece))
+        red_valid_moves: list[Coordinate] = []
+        for piece in red_pieces:
+            red_valid_moves.extend(self.get_valid_moves(piece))
 
-        if white_valid_moves == [] and black_valid_moves == []:
+        if white_valid_moves == [] and red_valid_moves == []:
             return "draw"
         elif white_valid_moves == []:
-            return "black"
-        elif black_valid_moves == []:
-            return "white"
+            return Colors.RED
+        elif red_valid_moves == []:
+            return Colors.WHITE
 
         return None
 
     def evaluate(self) -> float:
-        return (self.white_left - self.black_left) + (self.white_kings - self.black_kings) * 0.5
+        return (self.white_left - self.red_left) + (self.white_kings - self.red_kings) * 0.5
 
     def draw(self, win: pygame.Surface):
         self.draw_squares(win)

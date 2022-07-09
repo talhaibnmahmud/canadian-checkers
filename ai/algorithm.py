@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pygame
 from checker.board import Board
-from checker.constants import ColorType, Coordinate
+from checker.constants import ColorType, Colors, Coordinate
 from checker.piece import Piece
 
 
@@ -50,7 +50,7 @@ class Algorithm:
         if max_player:
             maxEval = float('-inf')
             best_move = None
-            for move in self.get_all_moves(board, "white"):
+            for move in self.get_all_moves(board, Colors.RED):
                 evaluation: float = self.minimax(move, depth-1, False)[0]
                 maxEval = max(maxEval, evaluation)
                 if maxEval == evaluation:
@@ -60,7 +60,7 @@ class Algorithm:
         else:
             minEval = float('inf')
             best_move = None
-            for move in self.get_all_moves(board, "black"):
+            for move in self.get_all_moves(board, Colors.WHITE):
                 evaluation = self.minimax(move, depth-1, True)[0]
                 minEval = min(minEval, evaluation)
                 if minEval == evaluation:
@@ -78,7 +78,7 @@ class Algorithm:
         if max_player:
             best_value = float('-inf')
             best_move = None
-            for move in self.get_all_moves(board, "white"):
+            for move in self.get_all_moves(board, Colors.RED):
                 value: float = self.alpha_beta(
                     move, depth-1, False, alpha, beta
                 )[0]
@@ -94,7 +94,7 @@ class Algorithm:
         else:
             best_value = float('inf')
             best_move = None
-            for move in self.get_all_moves(board, "black"):
+            for move in self.get_all_moves(board, Colors.WHITE):
                 value = self.alpha_beta(
                     move, depth-1, True, alpha, beta
                 )[0]

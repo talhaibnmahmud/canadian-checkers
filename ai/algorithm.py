@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pygame
 from checker.board import Board
-from checker.constants import ColorType, Colors, Coordinate
+from checker.constants import Colors, ColorType, Coordinate
 from checker.piece import Piece
 
 

@@ -1,6 +1,5 @@
 import logging
 
-from .algorithm import *
 from .board import *
 from .game import *
 from .piece import *
